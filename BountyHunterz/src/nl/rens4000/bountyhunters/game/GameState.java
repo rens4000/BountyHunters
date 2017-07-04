@@ -6,8 +6,8 @@ public enum GameState {
 	
 	WAITING(ChatColor.GREEN + "Waiting", true), STARTING(ChatColor.GREEN + "Starting", true), IN_GAME(ChatColor.RED + "In Game", false), RESETTING(ChatColor.RED + "Resetting", false);
 	
-	private String displayText;
-	private boolean joinable;
+	private final String displayText;
+	private final boolean joinable;
 	
 	GameState(String displayText, boolean joinable) {
 		this.displayText = displayText;

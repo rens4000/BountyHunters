@@ -139,6 +139,9 @@ public class ArenaManager {
 	
 	public static boolean join(String name, Player p) {
 		Arena arena = am.getArena(name);
+		
+		if(arena == null) return false;
+		
 		return arena.join(p);
 }
 

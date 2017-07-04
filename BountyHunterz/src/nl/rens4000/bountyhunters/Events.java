@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -104,18 +105,16 @@ public class Events implements Listener {
 		if(e.getEntity() instanceof Player) {
 			Player p = (Player) e.getEntity();
 			if(ArenaManager.inGame(p)) {
-				if(!ArenaManager.getArena(p).getPVP()) {
+				if(!ArenaManager.getArena(p).canPVP()) {
 					e.setCancelled(true);
 				}
 			}
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent e) {
-		if(ArenaManager.inGame(e.getPlayer())) {
-			e.setCancelled(true);
-		}
+		e.setCancelled(ArenaManager.inGame(e.getPlayer()));
 	}
 
 }

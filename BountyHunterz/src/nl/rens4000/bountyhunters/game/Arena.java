@@ -1,7 +1,7 @@
 package nl.rens4000.bountyhunters.game;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
@@ -18,9 +18,9 @@ import nl.rens4000.bountyhunters.managers.ConfigManager;
 
 public class Arena {
 	
-	private ArrayList<String> players = new ArrayList<>();
-	private HashMap<String, String> kit = new HashMap<>();
-	private HashMap<String, String> targets = new HashMap<>();
+	private List<String> players;
+	private Map<String, String> kit;
+	private Map<String, String> targets;
 	
 	private String name;
 	private int min;
@@ -88,7 +88,7 @@ public class Arena {
 		this.spawn = spawn;
 	}
 
-	public ArrayList<String> getPlayers() {
+	public List<String> getPlayers() {
 		return players;
 	}
 	
@@ -126,13 +126,12 @@ public class Arena {
 	}
 	
 	public String getRandomPlayer() {
-		int index = randomGenerator.nextInt(players.size());
-		return players.get(index);
+		return players.get(randomGenerator.nextInt(players.size()));
 	}
 	
 	public boolean isAlreadyTarget(String s) {
 		for(String st : targets.values()) {
-			if(st == s) {
+			if(st.equals(s)) {
 				return true;
 			}
 		}
@@ -224,6 +223,7 @@ public class Arena {
 	}
 
 	public void sendMessage(String string) {
+		if(players.size() == 0) return;
 		for(String s : players) {
 			Player p = Bukkit.getPlayer(s);
 			p.sendMessage(Main.PREFIX + string);
@@ -232,6 +232,7 @@ public class Arena {
 	
 	@SuppressWarnings("deprecation")
 	private void sendTitle(String string, String string2) {
+		if(players.size() == 0) return;
 		for(String s : players) {
 			Player p = Bukkit.getPlayer(s);
 			p.sendTitle(string, string2);
@@ -304,7 +305,7 @@ public class Arena {
 		}
 	}
 
-	public boolean getPVP() {
+	public boolean canPVP() {
 		return pvp;
 	}
 
@@ -317,7 +318,7 @@ public class Arena {
 		kit.put(p.getName(), string);
 	}
 
-	public HashMap<String, String> getTargets() {
+	public Map<String, String> getTargets() {
 		// TODO Auto-generated method stub
 		return targets;
 	}
