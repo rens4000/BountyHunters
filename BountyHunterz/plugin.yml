@@ -1,0 +1,8 @@
+name: BountyHunters
+main: nl.rens4000.bountyhunters.Main
+version: 1.0
+authors: [rens4000]
+commands:
+  bh:
+    description: The main command for the BountyHunter minigame
+    aliases: [Bounty, BountyHunters]
