@@ -23,10 +23,9 @@ public class ConfigManager {
 	private File scoreFile;
 	private FileConfiguration score;
 	
-	private Main main;
 	
-	public ConfigManager() {
-		main = Main.getInstance();
+	public ConfigManager(Main main) {
+		main = new Main();
 		
 		dataFile = new File(main.getDataFolder(), "data.yml");
 		data = YamlConfiguration.loadConfiguration(dataFile);

@@ -36,7 +36,10 @@ public class Arena {
 
 	private ConfigManager configManager;
 	
-	public Arena(String name, int min, int max, boolean enabled, Location lobby, Location spawn) {
+	private Main main;
+	
+	public Arena(String name, int min, int max, boolean enabled, Location lobby, Location spawn, Main main) {
+		this.main = main;
 		this.name = name;
 		this.min = min;
 		this.max = max;
@@ -44,7 +47,7 @@ public class Arena {
 		this.lobby = lobby;
 		this.enabled = enabled;
 		this.state = GameState.WAITING;
-		this.configManager = Main.getConfigManager();
+		this.configManager = main.getConfigManager();
 		this.pvp = false;
 	}
 
@@ -215,18 +218,18 @@ public class Arena {
 						sendMessage(ChatColor.AQUA + "PVP has been enabled! LAST MAN STANDING WINS!");
 					}
 					
-				}.runTaskLater(Main.getInstance(), 100);
+				}.runTaskLater(main.getInstance(), 100);
 				
 			}
 			
-		}.runTaskTimerAsynchronously(Main.getInstance(), 0, 20);
+		}.runTaskTimerAsynchronously(main.getInstance(), 0, 20);
 	}
 
 	public void sendMessage(String string) {
 		if(players.size() == 0) return;
 		for(String s : players) {
 			Player p = Bukkit.getPlayer(s);
-			p.sendMessage(Main.PREFIX + string);
+			p.sendMessage(main.PREFIX + string);
 		}
 	}
 	
@@ -240,8 +243,8 @@ public class Arena {
 	}
 
 	public void leave(Player p) {
-		p.teleport(Main.getConfigManager().getMainLobby());
-		p.sendMessage(Main.PREFIX + "You have left the game!");
+		p.teleport(main.getConfigManager().getMainLobby());
+		p.sendMessage(main.PREFIX + "You have left the game!");
 		players.remove(p.getName());
 		kit.remove(p.getName());
 		p.getInventory().clear();
@@ -263,7 +266,7 @@ public class Arena {
 	}
 	
 	public void leaveLast(Player p) {
-		p.teleport(Main.getConfigManager().getMainLobby());
+		p.teleport(main.getConfigManager().getMainLobby());
 		players.remove(p.getName());
 		kit.remove(p.getName());
 		p.getInventory().clear();
@@ -292,14 +295,14 @@ public class Arena {
 		}
 		for (int i = 0; i < players.size(); i++) {
 			Player p = Bukkit.getPlayer(players.get(i));
-			p.sendMessage(Main.PREFIX + "You have won the game. Congratz!");
-			if(!Main.getConfigManager().getScoreFile().contains("Players." + p.getName() + ".Wins")) {
-				Main.getConfigManager().getScoreFile().set("Players." + p.getName() + ".Wins", 1);
-				Main.getConfigManager().save();
+			p.sendMessage(main.PREFIX + "You have won the game. Congratz!");
+			if(!main.getConfigManager().getScoreFile().contains("Players." + p.getName() + ".Wins")) {
+				main.getConfigManager().getScoreFile().set("Players." + p.getName() + ".Wins", 1);
+				main.getConfigManager().save();
 			} else {
-				int kills = Main.getConfigManager().getScoreFile().getInt("Players." + p.getKiller() + ".Wins");
-				Main.getConfigManager().getScoreFile().set("Players." + p.getName() + ".Wins", kills + 1);
-				Main.getConfigManager().save();
+				int kills = main.getConfigManager().getScoreFile().getInt("Players." + p.getKiller() + ".Wins");
+				main.getConfigManager().getScoreFile().set("Players." + p.getName() + ".Wins", kills + 1);
+				main.getConfigManager().save();
 			}
 			leaveLast(p);
 		}

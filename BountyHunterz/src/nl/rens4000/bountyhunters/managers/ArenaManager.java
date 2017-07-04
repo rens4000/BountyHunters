@@ -13,21 +13,21 @@ import nl.rens4000.bountyhunters.game.Arena;
 
 public class ArenaManager {
 	
-	@SuppressWarnings("unused")
-	private Main instance = Main.getInstance();
+	public  ArrayList<Arena> arenas = new ArrayList<>();
 	
-	public static ArrayList<Arena> arenas = new ArrayList<>();
+	private  FileConfiguration data;
 	
-	private static FileConfiguration data;
+	private  ArenaManager am;
 	
-	private static ArenaManager am;
+	private Main main;
 	
-	public ArenaManager() {
-		data = Main.getConfigManager().getDataFile();
+	public ArenaManager(Main main) {
+		this.main = main;
+		data = main.getConfigManager().getDataFile();
 		am = this;
 	}
 	
-	public static Arena getArena(Player p) {
+	public  Arena getArena(Player p) {
 		for(Arena a : arenas) {
 			if(a.inGame(p)) {
 				return a;
@@ -50,7 +50,7 @@ public class ArenaManager {
 		return null;
 	}
 	
-	public static boolean inGame(Player p) {
+	public  boolean inGame(Player p) {
 		for(Arena a : arenas) {
 			if(a.getPlayers().contains(p.getName())) {
 				return true;
@@ -59,13 +59,13 @@ public class ArenaManager {
 		return false;
 	}
 	
-	public static boolean exists(String name) {
+	public  boolean exists(String name) {
 		Arena a = am.getArena(name);
 		return arenas.contains(a);
 	}
 	
 	public void createArena(String name) {
-		Arena a = new Arena(name, 2, 8, false, null, null);
+		Arena a = new Arena(name, 2, 8, false, null, null, main.getInstance());
 		arenas.add(a);
 		saveArenas();
 	}
@@ -87,11 +87,11 @@ public class ArenaManager {
 		data.set("Arenas." + a.getName() + ".min", null);
 		data.set("Arenas." + a.getName() + ".max", null);
 		data.set("Arenas." + a.getName() + ".enabled", null);
-		Main.getConfigManager().save();
+		main.getConfigManager().save();
 		arenas.remove(a);
 	}
 	
-	public static void loadArenas() {
+	public  void loadArenas() {
 		if(!data.contains("Arenas"))
 			return;
 		
@@ -100,14 +100,14 @@ public class ArenaManager {
 				Location lobbyLoc = new Location(Bukkit.getWorld(data.getString("Arenas." + key + ".lobby.world")), data.getInt("Arenas." + key + ".lobby.x"), data.getInt("Arenas." + key + ".lobby.y"), data.getInt("Arenas." + key + ".lobby.z"));
 				if(data.getString("Arenas." + key + ".spawn.world") != null) {
 					Location spawnLoc = new Location(Bukkit.getWorld(data.getString("Arenas." + key + ".spawn.world")), data.getInt("Arenas." + key + ".spawn.x"), data.getInt("Arenas." + key + ".spawn.y"), data.getInt("Arenas." + key + ".spawn.z"));
-					Arena arena = new Arena(key, data.getInt("Arenas." + key + ".min"), data.getInt("Arenas." + key + ".max"), data.getBoolean("Arenas." + key + ".enabled"), lobbyLoc, spawnLoc);
+					Arena arena = new Arena(key, data.getInt("Arenas." + key + ".min"), data.getInt("Arenas." + key + ".max"), data.getBoolean("Arenas." + key + ".enabled"), lobbyLoc, spawnLoc, main.getInstance());
 					arenas.add(arena);
 					return;
 				}
 			}
-			Arena arena = new Arena(key, data.getInt("Arenas." + key + ".min"), data.getInt("Arenas." + key + ".max"), data.getBoolean("Arenas." + key + ".enabled"), null, null);
+			Arena arena = new Arena(key, data.getInt("Arenas." + key + ".min"), data.getInt("Arenas." + key + ".max"), data.getBoolean("Arenas." + key + ".enabled"), null, null, main.getInstance());
 			arenas.add(arena);
-			Bukkit.getConsoleSender().sendMessage(Main.PREFIX + "Loaded arena: " + arena.getName());
+			Bukkit.getConsoleSender().sendMessage(main.PREFIX + "Loaded arena: " + arena.getName());
 		}
 }
 
@@ -128,7 +128,7 @@ public class ArenaManager {
 			data.set("Arenas." + a.getName() + ".min", a.getMin());
 			data.set("Arenas." + a.getName() + ".max", a.getMax());
 			data.set("Arenas." + a.getName() + ".enabled", a.isEnabled());
-			Main.getConfigManager().save();
+			main.getConfigManager().save();
 		}
 	}
 
@@ -137,7 +137,7 @@ public class ArenaManager {
 		saveArenas();
 	}
 	
-	public static boolean join(String name, Player p) {
+	public boolean join(String name, Player p) {
 		Arena arena = am.getArena(name);
 		
 		if(arena == null) return false;
@@ -157,10 +157,10 @@ public class ArenaManager {
 		arena.setEnabled(enabled);
 		for (int i = 0; i < arena.getPlayers().size(); i++) {
 			Player p = Bukkit.getPlayer(arena.getPlayers().get(i));
-			p.sendMessage(Main.PREFIX + ChatColor.RED + "This arena has been changed by an admin.");
+			p.sendMessage(main.PREFIX + ChatColor.RED + "This arena has been changed by an admin.");
 			arena.leave(p);
 		}
-		Main.getConfigManager().save();
+		main.getConfigManager().save();
 		
 	}
 

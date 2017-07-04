@@ -14,32 +14,31 @@ import nl.rens4000.bountyhunters.utils.CommandUtils;
 
 public class Main extends JavaPlugin {
 	
-	public static final String PREFIX = ChatColor.GOLD + "Bounty" + ChatColor.AQUA + "Hunters " + ChatColor.RESET;
-	public static final String NOPERM = PREFIX + ChatColor.RED + "You don't have permissions for that command!";
-	public static final String NOPLAYER = PREFIX + ChatColor.RED + "You need to be a player to perform that command!";
+	public final String PREFIX = ChatColor.GOLD + "Bounty" + ChatColor.AQUA + "Hunters " + ChatColor.RESET;
+	public final String NOPERM = PREFIX + ChatColor.RED + "You don't have permissions for that command!";
+	public final String NOPLAYER = PREFIX + ChatColor.RED + "You need to be a player to perform that command!";
 	
-	private static Main instance;
-	private static ConfigManager configManager;
-	private static ArenaManager am;
-	private static CommandUtils cu;
+	private ConfigManager configManager;
+	private ArenaManager arenaManager;
+	private CommandUtils commandUtils;
+	private Main instance;
 
-	public static Main getInstance() {
+	public Main getInstance() {
 		return instance;
 	}
 	
-	public static ConfigManager getConfigManager() {
+	public ConfigManager getConfigManager() {
 		return configManager;
 	}
 	
-	public static ArenaManager getArenaManager() {
-		return am;
+	public ArenaManager getArenaManager() {
+		return arenaManager;
 	}
 	
-	public static CommandUtils getCommandUtils() {
-		return cu;
+	public CommandUtils getCommandUtils() {
+		return commandUtils;
 	}
-	
-	@SuppressWarnings("static-access")
+
 	@Override
 	public void onEnable() {
 		PluginManager pm = Bukkit.getPluginManager();
@@ -47,60 +46,60 @@ public class Main extends JavaPlugin {
 		Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "Made by " + ChatColor.DARK_AQUA + "rens4000");
 		Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "Version: 1.0");
 		Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "+------------------------------+");
-		this.instance = this;
-		this.configManager = new ConfigManager();
-		this.am = new ArenaManager();
-		this.cu = new CommandUtils();
-		am.loadArenas();
-		pm.registerEvents(new Events(), this);
+		instance = this;
+		configManager = new ConfigManager(this);
+		arenaManager = new ArenaManager(instance);
+		commandUtils = new CommandUtils(this);
+		arenaManager.loadArenas();
+		pm.registerEvents(new Events(instance), this);
 	}
 	
 	@Override
 	public void onDisable() {
-		am.saveArenas();
+		arenaManager.saveArenas();
 	}
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(command.getName().equalsIgnoreCase("bh")) {
 			if(args.length == 0) {
-				cu.mainCommandMessage(sender);
+				commandUtils.mainCommandMessage(sender);
 				return true;
 			}
 			if(args[0].equalsIgnoreCase("help")) {
-				cu.helpCommand(sender);
-			}
+				commandUtils.helpCommand(sender);
+			} else
 			if(args[0].equalsIgnoreCase("create")) {
-				if(cu.createCommand(sender, args)) sender.sendMessage(PREFIX + "ARENA HAS BEEN CREATED AND REGISTERED");
-			}
+				if(commandUtils.createCommand(sender, args)) sender.sendMessage(PREFIX + "ARENA HAS BEEN CREATED AND REGISTERED");
+			}else
 			if(args[0].equalsIgnoreCase("remove")) {
-				if(cu.removeCommand(sender, args)) sender.sendMessage(PREFIX + "Arena has been removed!");
-			}
+				if(commandUtils.removeCommand(sender, args)) sender.sendMessage(PREFIX + "Arena has been removed!");
+			}else
 			if(args[0].equalsIgnoreCase("setspawn")) {
-				if(cu.setSpawnCommand(sender, args)) sender.sendMessage(PREFIX + "Spawn for: " + args[1] + " has been set!");
-			}
+				if(commandUtils.setSpawnCommand(sender, args)) sender.sendMessage(PREFIX + "Spawn for: " + args[1] + " has been set!");
+			}else
 			if(args[0].equalsIgnoreCase("selectkit")) {
-				if(cu.selectKitCommand(sender, args)) sender.sendMessage(Main.PREFIX + "You choose the kit: " + args[1]);
-			}
+				if(commandUtils.selectKitCommand(sender, args)) sender.sendMessage(PREFIX + "You choose the kit: " + args[1]);
+			}else
 			if(args[0].equalsIgnoreCase("setlobby")) {
-				if(cu.setLobby(sender, args)) sender.sendMessage(PREFIX + "Lobby for: " + args[1] + " has been set!");		
-			}
+				if(commandUtils.setLobby(sender, args)) sender.sendMessage(PREFIX + "Lobby for: " + args[1] + " has been set!");		
+			}else
 			if(args[0].equalsIgnoreCase("join")) {
-				if(cu.joinGame(sender, args)) sender.sendMessage(Main.PREFIX + ChatColor.GOLD + "Joined game!");
-			}
+				if(commandUtils.joinGame(sender, args)) sender.sendMessage(PREFIX + ChatColor.GOLD + "Joined game!");
+			}else
 			if(args[0].equalsIgnoreCase("leave")) {
 				if(!(sender instanceof Player)) {
 					sender.sendMessage(NOPLAYER);
 					return true;
 				}
 				Player p = (Player) sender;
-				if(!ArenaManager.inGame(p)) {
+				if(!arenaManager.inGame(p)) {
 					sender.sendMessage(PREFIX + ChatColor.RED + "You are not in a game!");
 					return true;
 				}
-				ArenaManager.getArena(p).leave(p);
+				arenaManager.getArena(p).leave(p);
 				return true;
-			}
+			}else
 			if(args[0].equalsIgnoreCase("setmainlobby")) {
 				if(!(sender instanceof Player)) {
 					sender.sendMessage(NOPLAYER);
@@ -113,17 +112,20 @@ public class Main extends JavaPlugin {
 				}
 				configManager.setMainLobby(p.getLocation());
 				p.sendMessage(PREFIX + "Main lobby has been set!");
-			}
+			}else
 			if(args[0].equalsIgnoreCase("toggle")) {
-				if(cu.toggle(sender, args)) sender.sendMessage(PREFIX + "Toggled the state");
-			}
+				if(commandUtils.toggle(sender, args)) sender.sendMessage(PREFIX + "Toggled the state");
+			}else
 			if(args[0].equalsIgnoreCase("setmin")) {
-				if(cu.setMin(sender, args))
+				if(commandUtils.setMin(sender, args))
 				sender.sendMessage(PREFIX + "Minimum players has been set to: " + args[2]);
-			}
+			}else
 			if(args[0].equalsIgnoreCase("setmax")) {
-				if(cu.setMax(sender, args))
-					sender.sendMessage(Main.PREFIX + "Maximum players has been set to: " + args[2]);
+				if(commandUtils.setMax(sender, args))
+					sender.sendMessage(PREFIX + "Maximum players has been set to: " + args[2]);
+			}else {
+				sender.sendMessage(PREFIX + "That's not a valid command! Do: /bh help to see which command you can use!");
+				return true;
 			}
 		}
 		return false;
