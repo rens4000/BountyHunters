@@ -10,10 +10,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.rens4000.bountyhunters.managers.ArenaManager;
 import nl.rens4000.bountyhunters.managers.ConfigManager;
+import nl.rens4000.bountyhunters.managers.SignManager;
 import nl.rens4000.bountyhunters.utils.CommandUtils;
 
 public class Main extends JavaPlugin {
 	
+	//The variables of the Main class
 	public final String PREFIX = ChatColor.GOLD + "Bounty" + ChatColor.AQUA + "Hunters " + ChatColor.RESET;
 	public final String NOPERM = PREFIX + ChatColor.RED + "You don't have permissions for that command!";
 	public final String NOPLAYER = PREFIX + ChatColor.RED + "You need to be a player to perform that command!";
@@ -21,11 +23,9 @@ public class Main extends JavaPlugin {
 	private ConfigManager configManager;
 	private ArenaManager arenaManager;
 	private CommandUtils commandUtils;
-	private Main instance;
-
-	public Main getInstance() {
-		return instance;
-	}
+	private SignManager signManager;
+	
+	//Getters
 	
 	public ConfigManager getConfigManager() {
 		return configManager;
@@ -38,20 +38,28 @@ public class Main extends JavaPlugin {
 	public CommandUtils getCommandUtils() {
 		return commandUtils;
 	}
-
+	
+	public SignManager getSignManager() {
+		return signManager;
+	}
+	
+	//Enables the plugin and does certain things
 	@Override
 	public void onEnable() {
+		//Registers the plugin manager
 		PluginManager pm = Bukkit.getPluginManager();
+		//Says a message
 		Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "+---------=BountyHunter=---------+");
 		Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "Made by " + ChatColor.DARK_AQUA + "rens4000");
 		Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "Version: 1.0");
 		Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "+------------------------------+");
-		instance = this;
+		//Initializes some variables
 		configManager = new ConfigManager(this);
-		arenaManager = new ArenaManager(instance);
+		arenaManager = new ArenaManager(this);
 		commandUtils = new CommandUtils(this);
+		signManager = new SignManager(this);
 		arenaManager.loadArenas();
-		pm.registerEvents(new Events(instance), this);
+		pm.registerEvents(new Events(this), this);
 	}
 	
 	@Override

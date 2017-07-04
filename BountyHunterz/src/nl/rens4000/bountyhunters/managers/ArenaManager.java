@@ -36,6 +36,30 @@ public class ArenaManager {
 		return null;
 	}
 	
+	public void setSign(Location loc, String name) {
+		data.set("arenas." + name + ".sign.world", loc.getWorld().getName());
+		data.set("arenas." + name + ".sign.x", loc.getBlockX());
+		data.set("arenas." + name + ".sign.y", loc.getBlockY());
+		data.set("arenas." + name + ".sign.z", loc.getBlockZ());
+		main.getConfigManager().save();
+	}
+	
+	public void removeSign(String name) {
+		data.set("arenas." + name + ".sign.world", null);
+		data.set("arenas." + name + ".sign.x", null);
+		data.set("arenas." + name + ".sign.y", null);
+		data.set("arenas." + name + ".sign.z", null);
+		main.getConfigManager().save();
+	}
+	
+	public Location getSign(String name) {
+		return new Location(Bukkit.getWorld(data.getString("arenas." + name + ".sign.world")), data.getInt("arenas." + name + ".sign.x"), data.getInt("arenas." + name + ".sign.y"), data.getInt("arenas." + name + ".sign.z"));
+	}
+	
+	public boolean signCreated(String name) {
+		return data.contains("arenas." + name + ".sign");
+	}
+	
 	public void setSpawn(Arena a, Location loc) {
 		a.setSpawn(loc);
 		saveArenas();
@@ -65,7 +89,7 @@ public class ArenaManager {
 	}
 	
 	public void createArena(String name) {
-		Arena a = new Arena(name, 2, 8, false, null, null, main.getInstance());
+		Arena a = new Arena(name, 2, 8, false, null, null, main);
 		arenas.add(a);
 		saveArenas();
 	}
@@ -100,12 +124,12 @@ public class ArenaManager {
 				Location lobbyLoc = new Location(Bukkit.getWorld(data.getString("Arenas." + key + ".lobby.world")), data.getInt("Arenas." + key + ".lobby.x"), data.getInt("Arenas." + key + ".lobby.y"), data.getInt("Arenas." + key + ".lobby.z"));
 				if(data.getString("Arenas." + key + ".spawn.world") != null) {
 					Location spawnLoc = new Location(Bukkit.getWorld(data.getString("Arenas." + key + ".spawn.world")), data.getInt("Arenas." + key + ".spawn.x"), data.getInt("Arenas." + key + ".spawn.y"), data.getInt("Arenas." + key + ".spawn.z"));
-					Arena arena = new Arena(key, data.getInt("Arenas." + key + ".min"), data.getInt("Arenas." + key + ".max"), data.getBoolean("Arenas." + key + ".enabled"), lobbyLoc, spawnLoc, main.getInstance());
+					Arena arena = new Arena(key, data.getInt("Arenas." + key + ".min"), data.getInt("Arenas." + key + ".max"), data.getBoolean("Arenas." + key + ".enabled"), lobbyLoc, spawnLoc, main);
 					arenas.add(arena);
 					return;
 				}
 			}
-			Arena arena = new Arena(key, data.getInt("Arenas." + key + ".min"), data.getInt("Arenas." + key + ".max"), data.getBoolean("Arenas." + key + ".enabled"), null, null, main.getInstance());
+			Arena arena = new Arena(key, data.getInt("Arenas." + key + ".min"), data.getInt("Arenas." + key + ".max"), data.getBoolean("Arenas." + key + ".enabled"), null, null, main);
 			arenas.add(arena);
 			Bukkit.getConsoleSender().sendMessage(main.PREFIX + "Loaded arena: " + arena.getName());
 		}

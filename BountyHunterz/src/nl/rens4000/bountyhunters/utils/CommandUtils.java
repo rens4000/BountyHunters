@@ -50,7 +50,7 @@ public class CommandUtils {
 	
 	public final boolean createCommand(CommandSender sender, String[] args) {
 		if(!sender.hasPermission("BountyHunters.Admin")) {
-			sender.sendMessage(main.getInstance().NOPERM);
+			sender.sendMessage(main.NOPERM);
 			return false;
 		}
 		if(args.length < 2) {

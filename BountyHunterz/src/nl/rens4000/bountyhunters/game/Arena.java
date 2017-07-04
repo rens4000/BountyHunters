@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -110,6 +111,11 @@ public class Arena {
 			return false;
 		if (players.size() == max)
 			return false;
+		
+		//Check if sign has been made
+		if(main.getArenaManager().signCreated(name))
+			//Updates sign
+			main.getSignManager().updateSign(main.getArenaManager().getSign(name), this);
 		players.add(p.getName());
 		kit.put(p.getName(), "default");
 		p.teleport(lobby);
@@ -202,6 +208,10 @@ public class Arena {
 				if(countdown == 30 || countdown == 20 || countdown == 15 || countdown == 10 || countdown == 5 || countdown == 4 || countdown == 3 || countdown == 2 || countdown == 1) {
 					sendMessage(ChatColor.AQUA + "" + countdown + ChatColor.WHITE + " seconds until the game starts!");
 					sendTitle(ChatColor.RED + "" + countdown + ChatColor.WHITE + " seconds", ChatColor.AQUA + "Until the game starts!");
+					for(int i = 0; i < players.size(); i++) {
+						Player p = Bukkit.getPlayer(players.get(i));
+						p.playSound(p.getLocation(), Sound.BLOCK_NOTE_PLING, 1, 1);
+					}
 				}
 				} else {
 					countdown = 30;
@@ -218,11 +228,11 @@ public class Arena {
 						sendMessage(ChatColor.AQUA + "PVP has been enabled! LAST MAN STANDING WINS!");
 					}
 					
-				}.runTaskLater(main.getInstance(), 100);
+				}.runTaskLater(main, 100);
 				
 			}
 			
-		}.runTaskTimerAsynchronously(main.getInstance(), 0, 20);
+		}.runTaskTimerAsynchronously(main, 0, 20);
 	}
 
 	public void sendMessage(String string) {
@@ -245,6 +255,8 @@ public class Arena {
 	public void leave(Player p) {
 		p.teleport(main.getConfigManager().getMainLobby());
 		p.sendMessage(main.PREFIX + "You have left the game!");
+		if(main.getArenaManager().signCreated(name))
+			main.getSignManager().updateSign(main.getArenaManager().getSign(name), this);
 		players.remove(p.getName());
 		kit.remove(p.getName());
 		p.getInventory().clear();
@@ -275,6 +287,7 @@ public class Arena {
 
 	private void reset() {
 		state = GameState.RESETTING;
+		if(players.size() != 0)
 		for (int i = 0; i < players.size(); i++) {
 			Player p = Bukkit.getPlayer(players.get(i));
 			p.teleport(configManager.getMainLobby());
@@ -324,6 +337,10 @@ public class Arena {
 	public Map<String, String> getTargets() {
 		// TODO Auto-generated method stub
 		return targets;
+	}
+
+	public GameState getState() {
+		return state;
 	}
 
 }

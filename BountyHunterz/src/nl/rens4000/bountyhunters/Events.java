@@ -11,6 +11,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.block.Sign;
 
 import nl.rens4000.bountyhunters.game.Arena;
 
@@ -28,6 +29,18 @@ public class Events implements Listener {
 		if(!main.getArenaManager().inGame(p))
 			return;
 		main.getArenaManager().getArena(p).leave(p);
+	}
+	
+	@EventHandler
+	public void onSignBreak(BlockBreakEvent e) {
+		if(e.getBlock().getType().equals(Material.SIGN) || e.getBlock().getType().equals(Material.SIGN_POST) || e.getBlock().getType().equals(Material.WALL_SIGN)) {
+			Sign s = (Sign) e.getBlock();
+			if(!main.getConfigManager().getDataFile().contains("arenas." + s.getLine(3) + ".sign"))
+				return;
+			if(!e.getPlayer().hasPermission("BountyHunters.Admin"))
+				e.setCancelled(true);
+			main.getArenaManager().removeArena(s.getLine(3));
+		}
 	}
 	
 	@SuppressWarnings("deprecation")
