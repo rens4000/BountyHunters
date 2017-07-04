@@ -45,15 +45,15 @@ public class CommandUtils {
 	public final boolean createCommand(CommandSender sender, String[] args) {
 		if(!sender.hasPermission("BountyHunters.Admin")) {
 			sender.sendMessage(Main.NOPERM);
-			return true;
+			return false;
 		}
 		if(args.length < 2) {
 			sender.sendMessage(Main.PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh create <name>"); 
-			return true;
+			return false;
 		}
 		if(ArenaManager.exists(args[1])) {
 			sender.sendMessage(Main.PREFIX + ChatColor.RED + "Arena does already exists!");
-			return true;
+			return false;
 		}
 		Main.getArenaManager().createArena(args[1]);
 		sender.sendMessage(Main.PREFIX + ChatColor.GREEN + "You've successfully created an arena!");
@@ -67,19 +67,19 @@ public class CommandUtils {
 	public final boolean removeCommand(CommandSender sender, String[] args) {
 		if(!sender.hasPermission("BountyHunters.Admin")) {
 			sender.sendMessage(Main.NOPERM);
-			return true;
+			return false;
 		}
 		if(args.length < 2) {
 			sender.sendMessage(Main.PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh remove <name>"); 
-			return true;
+			return false;
 		}
 		if(!ArenaManager.exists(args[1])) {
 			sender.sendMessage(Main.PREFIX + ChatColor.RED + "Arena doesn't exists!");
-			return true;
+			return false;
 		}
 		if(Main.getArenaManager().getArena(args[1]).isEnabled()) {
 			sender.sendMessage(Main.PREFIX + ChatColor.RED + "The arena needs to be disabled for this action!");
-			return true;
+			return false;
 		}
 		Main.getArenaManager().removeArena(args[1]);
 		return true;
@@ -88,26 +88,184 @@ public class CommandUtils {
 	public final boolean setSpawnCommand(CommandSender sender, String[] args) {
 		if(!sender.hasPermission("BountyHunters.Admin")) {
 			sender.sendMessage(Main.NOPERM);
-			return true;
+			return false;
 		}
 		if(!(sender instanceof Player)) {
 			sender.sendMessage(Main.NOPLAYER);
-			return true;
+			return false;
 		}
 		if(args.length < 2) {
 			sender.sendMessage(Main.PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh setspawn <name>"); 
-			return true;
+			return false;
 		}
 		if(!ArenaManager.exists(args[1])) {
 			sender.sendMessage(Main.PREFIX + ChatColor.RED + "Arena doesn't exists!");
-			return true;
+			return false;
 		}
 		if(Main.getArenaManager().getArena(args[1]).isEnabled()) {
 			sender.sendMessage(Main.PREFIX + ChatColor.RED + "The arena needs to be disabled for this action!");
-			return true;
+			return false;
 		}
 		Player p = (Player) sender;
 		Main.getArenaManager().setSpawn(Main.getArenaManager().getArena(args[1]), p.getLocation());
+		return true;
+	}
+	
+	public final boolean selectKitCommand(CommandSender sender, String[] args) {
+		if(!(sender instanceof Player)) {
+			sender.sendMessage(Main.NOPLAYER);
+			return false;
+		}
+		Player p = (Player) sender;
+		if(!ArenaManager.inGame(p)) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "You are not in a game!");
+			return false;
+		}
+		if(args.length < 2) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh selectkit <kit>"); 
+			return false;
+		}
+		if(!args[1].equals("default") || !args[1].equals("warrior")) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "That kit is incorrect. Kits you can choose from: default and warrior");
+			return false;
+		}
+		ArenaManager.getArena(p).setKit(p, args[1]);
+		
+		return true;
+	}
+	
+	public final boolean setLobby(CommandSender sender, String[] args) {
+		if(!sender.hasPermission("BountyHunters.Admin")) {
+			sender.sendMessage(Main.NOPERM);
+			return false;
+		}
+		if(!(sender instanceof Player)) {
+			sender.sendMessage(Main.NOPLAYER);
+			return false;
+		}
+		if(args.length < 2) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh setlobby <name>"); 
+			return false;
+		}
+		if(!ArenaManager.exists(args[1])) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "Arena doesn't exists!");
+			return false;
+		}
+		if(Main.getArenaManager().getArena(args[1]).isEnabled()) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "The arena needs to be disabled for this action!");
+			return false;
+		}
+		Player p = (Player) sender;
+		Main.getArenaManager().setLobby(Main.getArenaManager().getArena(args[1]), p.getLocation());
+		return true;
+	}
+	
+	public final boolean joinGame(CommandSender sender, String[] args) {
+		if(!(sender instanceof Player)) {
+			sender.sendMessage(Main.NOPLAYER);
+			return false;
+		}
+		Player p = (Player) sender;
+		if(args.length < 2) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh join <name>");
+			return false;
+		}
+		if(!ArenaManager.exists(args[1])) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "That arena doesn't exists!");
+			return false;
+		}
+		if(ArenaManager.inGame(p)) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "You are already in a game!");
+			return false;
+		}
+		if(!ArenaManager.join(args[1], p)) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "This game is currently not joinable.");
+			return false;
+		} 
+		return true;
+	}
+	
+	public final boolean toggle(CommandSender sender, String[] args) {
+		if(!sender.hasPermission("BountyHunters.Admin")) {
+			sender.sendMessage(Main.NOPERM);
+			return false;
+		}
+		if(args.length < 2) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh toggle <name>");
+			return false;
+		}
+		if(!ArenaManager.exists(args[1])) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "That arena doesn't exists!");
+			return false;
+		}
+		if(!Main.getConfigManager().mainLobbySet()) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "There isn't a main lobby!");
+			return false;
+		}
+		if(!Main.getArenaManager().getArena(args[1]).isEnabled()) {
+			if(!Main.getArenaManager().ArenaReady(args[1])) {
+				sender.sendMessage(Main.PREFIX + ChatColor.RED + "That arena isn't ready yet!");
+				return false;
+			}
+			Main.getArenaManager().setEnabled(args[1], true);
+			sender.sendMessage(Main.PREFIX + args[1] + " has been set to enabled!");
+			return true;
+		} else {
+			Main.getArenaManager().setEnabled(args[1], false);
+			sender.sendMessage(Main.PREFIX + args[1] + " has been set to disabled!");
+			return true;
+		}
+	}
+	
+	public final boolean setMin(CommandSender sender, String[] args) {
+		if(!sender.hasPermission("BountyHunters.Admin")) {
+			sender.sendMessage(Main.NOPERM);
+			return false;
+		}
+		if(args.length < 3) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh setmin <name> <min-players>");
+			return false;
+		}
+		if(!ArenaManager.exists(args[1])) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "That arena doesn't exists!");
+			return false;
+		}
+		if(Main.getArenaManager().getArena(args[1]).isEnabled()) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "The arena needs to be disabled for this action!");
+			return false;
+		}
+		if(Integer.parseInt(args[2]) < 2) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "The min has to be atleast 2"); 
+			return false;
+		}
+		Main.getArenaManager().getArena(args[1]).setMin(Integer.parseInt(args[2]));
+		Main.getConfigManager().setMin(args[1], Integer.parseInt(args[2]));
+		return true;
+	}
+	
+	public final boolean setMax(CommandSender sender, String[] args) {
+		if(!sender.hasPermission("BountyHunters.Admin")) {
+			sender.sendMessage(Main.NOPERM);
+			return false;
+		}
+		if(args.length < 3) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh setmax <name> <max-players>");
+			return false;
+		}
+		if(!ArenaManager.exists(args[1])) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "That arena doesn't exists!");
+			return false;
+		}
+		if(Main.getArenaManager().getArena(args[1]).isEnabled()) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "The arena needs to be disabled for this action!");
+			return false;
+		}
+		if(Integer.parseInt(args[2]) < 2) {
+			sender.sendMessage(Main.PREFIX + ChatColor.RED + "The max has to be atleast 2"); 
+			return false;
+		}
+		Main.getArenaManager().getArena(args[0]).setMax(Integer.parseInt(args[2]));
+		Main.getConfigManager().setMax(args[1], Integer.parseInt(args[2]));
 		return true;
 	}
 

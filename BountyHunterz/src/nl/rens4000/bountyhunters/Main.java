@@ -80,95 +80,13 @@ public class Main extends JavaPlugin {
 				if(cu.setSpawnCommand(sender, args)) sender.sendMessage(PREFIX + "Spawn for: " + args[1] + " has been set!");
 			}
 			if(args[0].equalsIgnoreCase("selectkit")) {
-				if(!(sender instanceof Player)) {
-					sender.sendMessage(NOPLAYER);
-					return true;
-				}
-				Player p = (Player) sender;
-				if(!ArenaManager.inGame(p)) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "You are not in a game!");
-					return true;
-				}
-				if(args.length < 2) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh selectkit <kit>"); 
-					return true;
-				}
-				if(!args[1].equals("default") || !args[1].equals("warrior")) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "That kit is incorrect. Kits you can choose from: default and warrior");
-					return true;
-				}
-				ArenaManager.getArena(p).setKit(p, args[1]);
-				p.sendMessage(PREFIX + "You choose the kit: " + args[1]);
-				
-			}
-			if(args[0].equalsIgnoreCase("forcestart")) {
-				if(!sender.hasPermission("BountyHunters.Admin")) {
-					sender.sendMessage(NOPERM);
-					return true;
-				}
-				if(args.length < 2) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh setlobby <name>"); 
-					return true;
-				}
-				if(!ArenaManager.exists(args[1])) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "Arena doesn't exists!");
-					return true;
-				}
-				if(!am.getArena(args[1]).isEnabled()) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "The arena needs to be enabled for this action!");
-					return true;
-				}
-				getArenaManager().getArena(args[1]).start();
-				sender.sendMessage(PREFIX + "Arena has been force started!");
+				if(cu.selectKitCommand(sender, args)) sender.sendMessage(Main.PREFIX + "You choose the kit: " + args[1]);
 			}
 			if(args[0].equalsIgnoreCase("setlobby")) {
-				if(!sender.hasPermission("BountyHunters.Admin")) {
-					sender.sendMessage(NOPERM);
-					return true;
-				}
-				if(!(sender instanceof Player)) {
-					sender.sendMessage(NOPLAYER);
-					return true;
-				}
-				if(args.length < 2) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh setlobby <name>"); 
-					return true;
-				}
-				if(!ArenaManager.exists(args[1])) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "Arena doesn't exists!");
-					return true;
-				}
-				if(am.getArena(args[1]).isEnabled()) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "The arena needs to be disabled for this action!");
-					return true;
-				}
-				Player p = (Player) sender;
-				am.setLobby(am.getArena(args[1]), p.getLocation());
-				p.sendMessage(PREFIX + "Lobby for: " + args[1] + " has been set!");
+				if(cu.setLobby(sender, args)) sender.sendMessage(PREFIX + "Lobby for: " + args[1] + " has been set!");		
 			}
 			if(args[0].equalsIgnoreCase("join")) {
-				if(!(sender instanceof Player)) {
-					sender.sendMessage(NOPLAYER);
-					return true;
-				}
-				Player p = (Player) sender;
-				if(args.length < 2) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh join <name>");
-					return true;
-				}
-				if(!ArenaManager.exists(args[1])) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "That arena doesn't exists!");
-					return true;
-				}
-				if(ArenaManager.inGame(p)) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "You are already in a game!");
-					return true;
-				}
-				if(!ArenaManager.join(args[1], p)) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "This game is currently not joinable.");
-				} else {
-					sender.sendMessage(PREFIX + ChatColor.GOLD + "Joined game!");
-				}
+				if(cu.joinGame(sender, args)) sender.sendMessage(Main.PREFIX + ChatColor.GOLD + "Joined game!");
 			}
 			if(args[0].equalsIgnoreCase("leave")) {
 				if(!(sender instanceof Player)) {
@@ -197,84 +115,15 @@ public class Main extends JavaPlugin {
 				p.sendMessage(PREFIX + "Main lobby has been set!");
 			}
 			if(args[0].equalsIgnoreCase("toggle")) {
-				if(!sender.hasPermission("BountyHunters.Admin")) {
-					sender.sendMessage(NOPERM);
-					return true;
-				}
-				if(args.length < 2) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh toggle <name>");
-					return true;
-				}
-				if(!ArenaManager.exists(args[1])) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "That arena doesn't exists!");
-					return true;
-				}
-				if(!configManager.mainLobbySet()) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "There isn't a main lobby!");
-					return true;
-				}
-				if(!am.getArena(args[1]).isEnabled()) {
-					if(!am.ArenaReady(args[1])) {
-						sender.sendMessage(PREFIX + ChatColor.RED + "That arena isn't ready yet!");
-						return true;
-					}
-					am.setEnabled(args[1], true);
-					sender.sendMessage(PREFIX + args[1] + " has been set to enabled!");
-				} else {
-					am.setEnabled(args[1], false);
-					sender.sendMessage(PREFIX + args[1] + " has been set to disabled!");
-
-				}
+				if(cu.toggle(sender, args)) sender.sendMessage(PREFIX + "Toggled the state");
 			}
 			if(args[0].equalsIgnoreCase("setmin")) {
-				if(!sender.hasPermission("BountyHunters.Admin")) {
-					sender.sendMessage(NOPERM);
-					return true;
-				}
-				if(args.length < 3) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh setmin <name> <min-players>");
-					return true;
-				}
-				if(!ArenaManager.exists(args[1])) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "That arena doesn't exists!");
-					return true;
-				}
-				if(am.getArena(args[1]).isEnabled()) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "The arena needs to be disabled for this action!");
-					return true;
-				}
-				if(Integer.parseInt(args[2]) < 2) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "The min has to be atleast 2"); 
-					return false;
-				}
-				am.getArena(args[1]).setMin(Integer.parseInt(args[2]));
-				configManager.setMin(args[1], Integer.parseInt(args[2]));
+				if(cu.setMin(sender, args))
 				sender.sendMessage(PREFIX + "Minimum players has been set to: " + args[2]);
 			}
 			if(args[0].equalsIgnoreCase("setmax")) {
-				if(!sender.hasPermission("BountyHunters.Admin")) {
-					sender.sendMessage(NOPERM);
-					return true;
-				}
-				if(args.length < 3) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "Wrong usage of command! Do: /bh setmax <name> <max-players>");
-					return true;
-				}
-				if(!ArenaManager.exists(args[1])) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "That arena doesn't exists!");
-					return true;
-				}
-				if(am.getArena(args[1]).isEnabled()) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "The arena needs to be disabled for this action!");
-					return true;
-				}
-				if(Integer.parseInt(args[2]) < 2) {
-					sender.sendMessage(PREFIX + ChatColor.RED + "The max has to be atleast 2"); 
-					return false;
-				}
-				am.getArena(args[0]).setMax(Integer.parseInt(args[2]));
-				configManager.setMax(args[1], Integer.parseInt(args[2]));
-				sender.sendMessage(PREFIX + "Maximum players has been set to: " + args[2]);
+				if(cu.setMax(sender, args))
+					sender.sendMessage(Main.PREFIX + "Maximum players has been set to: " + args[2]);
 			}
 		}
 		return false;
